@@ -1,1 +1,35 @@
+include <Servo.h>
 
+const int trigPin = 2; // Trig pin for ultrasonic sensor const int echoPin = 3; // Echo pin for ultrasonic sensor const int servoPin = 9; // Servo pin
+
+Servo gateServo; // Servo object
+
+void setup() { pinMode(trigPin, OUTPUT); pinMode(echoPin, INPUT);
+
+gateServo.attach(servoPin);
+
+Serial.begin(9600);
+
+closeGate(); // Initially, close the gate }
+
+void loop() { unsigned long duration = measureDistance(); float distance = calculateDistance(duration);
+
+if (distance <= 10) { openGate(); // Open the gate delay(2000); // Allow time for vehicle passage (adjust as needed) closeGate(); // Close the gate }
+
+Serial.print("Distance: "); Serial.print(distance); Serial.println(" cm");
+
+delay(100); // Delay between each loop iteration }
+
+unsigned long measureDistance() { digitalWrite(trigPin, LOW); delayMicroseconds(2); digitalWrite(trigPin, HIGH); delayMicroseconds(10); digitalWrite(trigPin, LOW);
+
+return pulseIn(echoPin, HIGH); }
+
+float calculateDistance(unsigned long duration) { float speedOfSound = 0.034; // cm/microsecond (approximate value)
+
+float distance = (speedOfSound * duration) / 2; // Divide by 2 for one-way distance
+
+return distance; }
+
+void openGate() { gateServo.write(90); // Set the servo position to open the gate Serial.println("Gate opened"); }
+
+void closeGate() { gateServo.write(0); // Set the servo position to close the gate Serial.println("Gate closed"); }
